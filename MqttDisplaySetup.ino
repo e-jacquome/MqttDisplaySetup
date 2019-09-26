@@ -805,8 +805,7 @@ void onMqttConnect(bool sessionPresent) {
   Serial.print("Session present: ");
   Serial.println(sessionPresent);
 
-
-  //subscribíng to the update channel to listen to sign updates
+  //subscribing to the update channel to listen for sign updates
   //Change this if you want to change the name of the channels you recieve updates on
   uint16_t packetIdSub = mqttClient.subscribe("doorsign/update", 2);
   Serial.print("Subscribing to doorsign/update at QoS 2, packetId: ");
@@ -862,6 +861,13 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   Serial.println(index);
   Serial.print("  total: ");
   Serial.println(total);
+
+//Publishes a message to the doorsign/status topic with the payload message
+  String statusUpdateStr = "Recieved update: ";
+  statusUpdateStr.concat(payload);
+  char statusUpdateChar[50];
+  statusUpdateStr.toCharArray(statusUpdateChar, 50);
+  mqttClient.publish("doorsign/status", 2, true, statusUpdateChar);
 
   reactToPayload(payload);
 }
@@ -930,6 +936,7 @@ void printProfAtLocation(String payloadMessage){
   display.update();
 }
 
+//Function to write a message on the epaper display
 void printMessage(String payloadMessage) {
   initializeFont();
   display.println(payloadMessage);
