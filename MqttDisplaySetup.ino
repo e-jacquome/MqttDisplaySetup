@@ -1,31 +1,30 @@
  
 #include <WiFi.h>
 #include <AsyncMqttClient.h>
-// include library, include base class, make path known
 #include <GxEPD.h>
-#include <GxGDEW027W3/GxGDEW027W3.h>      // Library for the 2.7" b/w epaper display
-// FreeFonts from Adafruit_GFX
-#include <Fonts/FreeMonoBold9pt7b.h>
+#include <GxGDEW027W3/GxGDEW027W3.h>  // Library for the 2.7" b/w epaper display
+#include <Fonts/FreeMonoBold9pt7b.h>  //FreeFonts from Adafruit_GFX
 #include <Fonts/FreeMonoBold12pt7b.h>
 #include <Fonts/FreeMonoBold18pt7b.h>
 #include <Fonts/FreeMonoBold24pt7b.h>
 #include <GxIO/GxIO_SPI/GxIO_SPI.h>
 #include <GxIO/GxIO.h>
 
-
+//NOT FULLY WORKING
 //Definitions for the deep sleep timer
 //#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
 //#define TIME_TO_SLEEP  600        /* Time ESP32 will go to sleep (in seconds) */ //Set to 10 minutes
 //RTC_DATA_ATTR int bootCount = 0;
 
-//Sets SPI pin definitions
+//Sets SPI pin definitions (Do not change if using the pins from the readme)
 GxIO_Class io(SPI, /*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16); // arbitrary selection of 17, 16
 GxEPD_Class display(io, /*RST=*/ 16, /*BUSY=*/ 4); // arbitrary selection of (16), 4
 
 
+//IMPORTANT: Do change these values according to your network
 //Defining the wifi network the mqtt broker is in.
-#define WIFI_SSID "Pfluckley-Netz"
-#define WIFI_PASSWORD "BabyEnte162"
+#define WIFI_SSID "XXXXXX"
+#define WIFI_PASSWORD "XXXXXX"
 
 //Defining the MQTT-Broker location (enter IP of the broker)
 #define MQTT_HOST IPAddress(192, 168, 0, 153)
@@ -33,7 +32,7 @@ GxEPD_Class display(io, /*RST=*/ 16, /*BUSY=*/ 4); // arbitrary selection of (16
 
 AsyncMqttClient mqttClient;
 
-
+//TODO: Put the bitmaps in a seperate file
 // 'ProfDa', 264x176px
 const unsigned char profDa [] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
@@ -768,54 +767,60 @@ const unsigned char profNichtDa [] PROGMEM = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
- 
+// Function that uses the given credentials to connect to wifi network the broker is in
 void connectToWifi() {
   Serial.println("Connecting to Wi-Fi...");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 }
 
+// Function that tries to connect to mqtt broker
 void connectToMqtt() {
   Serial.println("Connecting to MQTT...");
   mqttClient.connect();
 }
 
+// Function that prints information about different wifi events
 void WiFiEvent(WiFiEvent_t event) {
     Serial.printf("[WiFi-event] event: %d\n", event);
     switch(event) {
+      // If wifi connected and ip assigned, print connected and the ip, then tries to connect to mqtt
     case SYSTEM_EVENT_STA_GOT_IP:
         Serial.println("WiFi connected");
         Serial.println("IP address: ");
         Serial.println(WiFi.localIP());
         connectToMqtt();
         break;
+        // If wifi disconnected, print disconnected
     case SYSTEM_EVENT_STA_DISCONNECTED:
         Serial.println("WiFi lost connection");
         //xTimerStop(mqttReconnectTimer, 0); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
-    //xTimerStart(wifiReconnectTimer, 0);
-        
+        //xTimerStart(wifiReconnectTimer, 0);
         break;
     }
 }
 
+// Function that executes if connected to mqtt
 void onMqttConnect(bool sessionPresent) {
   Serial.println("Connected to MQTT.");
   Serial.print("Session present: ");
   Serial.println(sessionPresent);
-  
+
+
   //subscribíng to the update channel to listen to sign updates
+  //Change this if you want to change the name of the channels you recieve updates on
   uint16_t packetIdSub = mqttClient.subscribe("doorsign/update", 2);
   Serial.print("Subscribing to doorsign/update at QoS 2, packetId: ");
   Serial.println(packetIdSub);
 
-  //publish to status channel that esp is connected and subscribed.
+  //publish to status channel that esp is connected and subscribed
   uint16_t packetIdPub1 = mqttClient.publish("doorsign/status", 2, true, "Connected.");
   Serial.println("Publishing at QoS 2, packetId: ");
   Serial.println(packetIdPub1);
 }
 
+//Function that executes when you are disconnected from mqtt broker
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
   Serial.println("Disconnected from MQTT.");
-
   if (WiFi.isConnected()) {
     connectToMqtt();
   } else {
@@ -823,6 +828,7 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
   }
 }
 
+//Function that exeutes when you subcribe to a channel
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
   Serial.println("Subscribe acknowledged.");
   Serial.print("  packetId: ");
@@ -831,12 +837,15 @@ void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
   Serial.println(qos);
 }
 
+//Function that executes when you unsibcribe from a channel
 void onMqttUnsubscribe(uint16_t packetId) {
   Serial.println("Unsubscribe acknowledged.");
   Serial.print("  packetId: ");
   Serial.println(packetId);
 }
 
+//Function that executes when you recieve a message at a subscribed channel
+//First the message properties are printed to the console, then a reaction function is called.
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
   Serial.println("Publish received.");
   Serial.print("  topic: ");
@@ -857,6 +866,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   reactToPayload(payload);
 }
 
+//Function that executes when a message is published
 void onMqttPublish(uint16_t packetId) {
   Serial.println("Publish acknowledged.");
   Serial.print("  packetId: ");
