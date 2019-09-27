@@ -81,7 +81,7 @@ Müssen an Topic `doorsign/update` gesendet werden.
 
 ## ToDo's:
 
-* Bitmaps auslagern
+* ~~Bitmaps auslagern~~
 * Zusätzliche Bitmaps erstellen
 * Nachrichten mit anderem Inhalt ODER LÄNGER 4 Zeichen schreiben den Inhalt des Payloads
 * ~~Ungewollte Zeichen nach eigenen Nachrichten entfernen~~
@@ -89,4 +89,4 @@ Müssen an Topic `doorsign/update` gesendet werden.
 * MQTT Steuerung mit Interface auf Raspberry Pi programmieren
 * 'Schilderrahmen' Modell designen 
 * MQTT Kommunikationssicherheit erhöhen
-* AdafruitIO näher anschauen und evtl implementieren für webbasierte Steuerung
+* AdafruitIO näher anschauen und evtl implementieren für webbasierte Steuerung -> Wahrscheinlich nicht möglich da esp32 noch nicht unterstützt
