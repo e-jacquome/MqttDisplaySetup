@@ -939,8 +939,17 @@ void printProfAtLocation(String payloadMessage){
 //Function to write a message on the epaper display
 void printMessage(String payloadMessage) {
   initializeFont();
-  display.println(payloadMessage);
+  String message;
+  //Creates a substring of the payloadMessage begining at the start and cutting after a '.'
+  //This is used to cut of random bytes and characters from the mqtt transmition
+  for (int i=0; i < payloadMessage.length(); i++) {
+    if (payloadMessage.charAt(i) == '.') {
+      message = payloadMessage.substring(0, i);
+    }
+  }
+  display.println(message);
   display.update(); 
+  
 }
 
 //Initializing, clearing, setting the font and rotation of the display to write a basic text.
