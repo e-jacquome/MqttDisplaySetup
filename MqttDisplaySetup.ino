@@ -13,9 +13,9 @@
 
 //NOT FULLY WORKING
 //Definitions for the deep sleep timer
-//#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
-//#define TIME_TO_SLEEP  600        /* Time ESP32 will go to sleep (in seconds) */ //Set to 10 minutes
-//RTC_DATA_ATTR int bootCount = 0;
+#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
+#define TIME_TO_SLEEP  20        /* Time ESP32 will go to sleep (in seconds) */ // 600 for 10 minutes
+RTC_DATA_ATTR int bootCount = 0;
 
 //Sets SPI pin definitions (Do not change if using the pins from the readme)
 GxIO_Class io(SPI, /*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16); // arbitrary selection of 17, 16
@@ -32,6 +32,22 @@ GxEPD_Class display(io, /*RST=*/ 16, /*BUSY=*/ 4); // arbitrary selection of (16
 #define MQTT_PORT 1883
 
 AsyncMqttClient mqttClient;
+
+void printWakeupReason() {
+  esp_sleep_wakeup_cause_t wakeupReason;
+  wakeupReason = esp_sleep_get_wakeup_cause();
+
+  switch(wakeupReason)
+  {
+    case ESP_SLEEP_WAKEUP_EXT0 : Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+    case ESP_SLEEP_WAKEUP_EXT1 : Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+    case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break;
+    case ESP_SLEEP_WAKEUP_TOUCHPAD : Serial.println("Wakeup caused by touchpad"); break;
+    case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
+    default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeupReason); break;
+  }
+}
+
 
 // Function that uses the given credentials to connect to wifi network the broker is in
 void connectToWifi() {
@@ -93,7 +109,7 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
   }
 }
 
-//Function that exeutes when you subcribe to a channel
+//Function that executes when you subscribe to a channel
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
   Serial.println("Subscribe acknowledged.");
   Serial.print("  packetId: ");
@@ -102,7 +118,7 @@ void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
   Serial.println(qos);
 }
 
-//Function that executes when you unsibcribe from a channel
+//Function that executes when you unsubscribe from a channel
 void onMqttUnsubscribe(uint16_t packetId) {
   Serial.println("Unsubscribe acknowledged.");
   Serial.print("  packetId: ");
@@ -145,7 +161,7 @@ void onMqttPublish(uint16_t packetId) {
   Serial.println(packetId);
 }
 
-//Method for calling the correct printing method depending on the payload
+//Method for calling the correct printing method depending on the payload. After reacting the esp will go to deep sleep.
 void reactToPayload(char* payload) {
   String payloadMessage;
   uint8_t length = strlen(payload);
@@ -169,6 +185,7 @@ void reactToPayload(char* payload) {
     printMessage(payloadMessage);
   }
   Serial.println();
+  activateDeepSleep();
 }
 
 //Displaying the predefined bitmap when the professor is at university
@@ -178,6 +195,7 @@ void printProfDa(){
   display.update();
   display.drawBitmap(0, 0, profDa, 264, 176, GxEPD_BLACK);
   display.update();
+  delay(5000);
 }
 
 //Displaying the predefined bitmap when the prof is not at university
@@ -187,6 +205,7 @@ void printProfNichtDa(){
   display.update();
   display.drawBitmap(0, 0, profNichtDa, 264, 176, GxEPD_BLACK);
   display.update();
+  delay(5000);
 }
 
 //Printing that the professor is a specified room in the M-building 
@@ -200,6 +219,7 @@ void printProfAtLocation(String payloadMessage){
   display.println("Der Professor ist gerade in Raum :");
   display.println(location);
   display.update();
+  delay(5000);
 }
 
 //Function to write a message on the epaper display
@@ -215,7 +235,7 @@ void printMessage(String payloadMessage) {
   }
   display.println(message);
   display.update(); 
-  
+  delay(5000);
 }
 
 //Initializing, clearing, setting the font and rotation of the display to write a basic text.
@@ -229,28 +249,36 @@ void initializeFont() {
   display.setFont(f);
   display.setCursor(0, 0);
   display.println();
-  
 }
+
+void activateDeepSleep() {
+  Serial.println("Going to sleep now");
+  delay(1000);
+  Serial.flush(); 
+  delay(1000);
+  esp_deep_sleep_start();
+}
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println();
 
   //Increment boot number and print it every reboot
-  //++bootCount;
-  //Serial.println("Boot number: " + String(bootCount));
-
+  ++bootCount;
+  Serial.println("Boot number: " + String(bootCount));
+  printWakeupReason();
+  
   /*
   First we configure the wake up source
   We set the ESP32 to wake up every 10 minutes
   */
-  //esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
-  //Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) +
-  //" Seconds");
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) +
+  " Seconds");
   
   //Initialise epaper display 
   display.init(115200); //enable diagnostic output on serial
-  
 
   WiFi.onEvent(WiFiEvent);
   mqttClient.onConnect(onMqttConnect);
@@ -263,11 +291,8 @@ void setup() {
 
   connectToWifi();
 
-  //Now after checking for a update the esp will go to sleep
- // Serial.println("Going to sleep now");
-  //delay(1000);
-  //Serial.flush(); 
-  //esp_deep_sleep_start();
+  delay(30000);
+  activateDeepSleep();
 }
 
 void loop() {
