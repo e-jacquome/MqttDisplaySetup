@@ -75,7 +75,7 @@ Müssen an Topic `doorsign/update` gesendet werden.
 * `DA` zeigt das "Professor ist da" Bitmap an.
 * `WEG` zeigt das "Professor ist nicht da" Bitmap an.
 * `MXXX`, wobei XXX für eine dreistellige Raumnummer steht, zeigt die Nachricht das der Professor in Raum XXX ist an.
-* Nachrichten mit anderem Inhalt werden direkt auf das Türschild geschrieben.
+* Nachrichten mit anderem Inhalt werden direkt auf das Türschild geschrieben. Nachricht sollte aus einem Satz bestehen, da der String an dem ersten Punkt "." abgeschnitten wird.
 
 ---
 
@@ -84,7 +84,9 @@ Müssen an Topic `doorsign/update` gesendet werden.
 * Bitmaps auslagern
 * Zusätzliche Bitmaps erstellen
 * Nachrichten mit anderem Inhalt ODER LÄNGER 4 Zeichen schreiben den Inhalt des Payloads
-* Ungewollte Zeichen nach eigenen Nachrichten entfernen
+* ~~Ungewollte Zeichen nach eigenen Nachrichten entfernen~~
 * Deepsleep mit Timer funktionsfähig machen
 * MQTT Steuerung mit Interface auf Raspberry Pi programmieren
 * 'Schilderrahmen' Modell designen 
+* MQTT Kommunikationssicherheit erhöhen
+* AdafruitIO näher anschauen und evtl implementieren für webbasierte Steuerung
