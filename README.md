@@ -1,5 +1,6 @@
 # MQTT ESP32 E-paper Türschild
-Ein ESP32-gesteuertes Epaper Display, das durch eingehende MQTT Nachrichten die Anzeige ändert.
+Ein ESP32-gesteuertes Epaper Display, das durch eingehende MQTT Nachrichten die Anzeige ändert. 
+Das Projekt ist aktuell noch in aktiver Entwicklung und wird sich relativ häufig ändern.
 
 ## Benötigte Hardware
 * ESP32 Development Board
@@ -85,7 +86,7 @@ Müssen an Topic `doorsign/update` gesendet werden.
 * Zusätzliche Bitmaps erstellen
 * Nachrichten mit anderem Inhalt ODER LÄNGER 4 Zeichen schreiben den Inhalt des Payloads
 * ~~Ungewollte Zeichen nach eigenen Nachrichten entfernen~~
-* Deepsleep mit Timer funktionsfähig machen
+* ~~Deepsleep mit Timer funktionsfähig machen~~
 * MQTT Steuerung mit Interface auf Raspberry Pi programmieren
 * 'Schilderrahmen' Modell designen 
 * MQTT Kommunikationssicherheit erhöhen
