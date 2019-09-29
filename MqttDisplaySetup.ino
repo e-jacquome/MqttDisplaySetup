@@ -7,9 +7,9 @@
 #include <Fonts/FreeMonoBold12pt7b.h>
 #include <Fonts/FreeMonoBold18pt7b.h>
 #include <Fonts/FreeMonoBold24pt7b.h>
-#include <GxIO/GxIO_SPI/GxIO_SPI.h>
+#include <GxIO/GxIO_SPI/GxIO_SPI.h> //library for using spi pins to send data to epaper display
 #include <GxIO/GxIO.h>
-#include "bitmaps.h"
+#include "bitmaps.h"  //external file containing the bitmaps
 
 //NOT FULLY WORKING
 //Definitions for the deep sleep timer
@@ -17,7 +17,7 @@
 #define TIME_TO_SLEEP  20        /* Time ESP32 will go to sleep (in seconds) */ // 600 for 10 minutes
 RTC_DATA_ATTR int bootCount = 0;
 
-//Sets SPI pin definitions (Do not change if using the pins from the readme)
+//Sets SPI pin definitions (Do not change if using the pins connections from the readme)
 GxIO_Class io(SPI, /*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16); // arbitrary selection of 17, 16
 GxEPD_Class display(io, /*RST=*/ 16, /*BUSY=*/ 4); // arbitrary selection of (16), 4
 
@@ -33,6 +33,7 @@ GxEPD_Class display(io, /*RST=*/ 16, /*BUSY=*/ 4); // arbitrary selection of (16
 
 AsyncMqttClient mqttClient;
 
+// Function that prints the wakeup reason after esp woke up from deep sleep
 void printWakeupReason() {
   esp_sleep_wakeup_cause_t wakeupReason;
   wakeupReason = esp_sleep_get_wakeup_cause();
@@ -48,8 +49,7 @@ void printWakeupReason() {
   }
 }
 
-
-// Function that uses the given credentials to connect to wifi network the broker is in
+// Function that uses the given credentials to connect to the wifi network the broker is in
 void connectToWifi() {
   Serial.println("Connecting to Wi-Fi...");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -72,11 +72,10 @@ void WiFiEvent(WiFiEvent_t event) {
         Serial.println(WiFi.localIP());
         connectToMqtt();
         break;
+        
         // If wifi disconnected, print disconnected
     case SYSTEM_EVENT_STA_DISCONNECTED:
         Serial.println("WiFi lost connection");
-        //xTimerStop(mqttReconnectTimer, 0); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
-        //xTimerStart(wifiReconnectTimer, 0);
         break;
     }
 }
@@ -87,7 +86,7 @@ void onMqttConnect(bool sessionPresent) {
   Serial.print("Session present: ");
   Serial.println(sessionPresent);
 
-  //subscribing to the update channel to listen for sign updates
+  //subscribing to the update channel to listen for doorsign updates
   //Change this if you want to change the name of the channels you recieve updates on
   uint16_t packetIdSub = mqttClient.subscribe("doorsign/update", 2);
   Serial.print("Subscribing to doorsign/update at QoS 2, packetId: ");
@@ -126,7 +125,7 @@ void onMqttUnsubscribe(uint16_t packetId) {
 }
 
 //Function that executes when you recieve a message at a subscribed channel
-//First the message properties are printed to the console, then a reaction function is called.
+//First the message properties are printed to the serial monitor, then a reaction function is called.
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
   Serial.println("Publish received.");
   Serial.print("  topic: ");
@@ -144,13 +143,14 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   Serial.print("  total: ");
   Serial.println(total);
 
-//Publishes a message to the doorsign/status topic with the payload message
+  //Publishes a message to the doorsign/status topic with the payload message
   String statusUpdateStr = "Recieved update: ";
   statusUpdateStr.concat(payload);
   char statusUpdateChar[50];
   statusUpdateStr.toCharArray(statusUpdateChar, 50);
   mqttClient.publish("doorsign/status", 2, true, statusUpdateChar);
 
+  //calling the reaction function which changes the display according to the payload message
   reactToPayload(payload);
 }
 
@@ -222,7 +222,7 @@ void printProfAtLocation(String payloadMessage){
   delay(5000);
 }
 
-//Function to write a message on the epaper display
+//Function to write a custom message on the epaper display
 void printMessage(String payloadMessage) {
   initializeFont();
   String message;
@@ -269,10 +269,8 @@ void setup() {
   Serial.println("Boot number: " + String(bootCount));
   printWakeupReason();
   
-  /*
-  First we configure the wake up source
-  We set the ESP32 to wake up every 10 minutes
-  */
+  
+  //First we configure the wake up source. We set the ESP32 to wake up every 10 minutes
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
   Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) +
   " Seconds");
@@ -291,6 +289,7 @@ void setup() {
 
   connectToWifi();
 
+  //After 30 seconds of being 'awake' with no message, the esp will go to deep sleep.
   delay(30000);
   activateDeepSleep();
 }
