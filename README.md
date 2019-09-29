@@ -2,6 +2,8 @@
 Ein ESP32-gesteuertes Epaper Display, das durch eingehende MQTT Nachrichten die Anzeige ändert. 
 Das Projekt ist aktuell noch in aktiver Entwicklung und wird sich relativ häufig ändern.
 
+![gif](https://media.giphy.com/media/YPDTgIUTNqVegPLqcs/giphy.gif "MqttProfDa")
+
 ## Benötigte Hardware
 * ESP32 Development Board
 * Adafruit 2.7" b/w epaper Display
@@ -31,7 +33,7 @@ Das Projekt ist aktuell noch in aktiver Entwicklung und wird sich relativ häufi
 6. Installieren des Mosquitto Server und Clients durch `sudo apt install mosquitto mosquitto-clients`. Nach der Installation wird automatisch ein Mosquitto Server gestartet.
 
 ### ESP32
-1. Installieren aller benötigten Bibliotheken mithilfe der Bibliotheksverwaltung. Liste siehe oben.
+1. Installieren aller benötigten Bibliotheken mithilfe der Bibliotheksverwaltung in der ArduinoIDE. Liste siehe oben.
 2. Downloaden/Entpacken des Arduino Codes.
 3. Installieren des ESP32 Boardtreibers:
     * In den Voreinstellungen unter zusätzliche Boardverwalter `https://dl.espressif.com/dl/package_esp32_index.json` eintragen.
