@@ -14,7 +14,7 @@
 //NOT FULLY WORKING
 //Definitions for the deep sleep timer
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
-#define TIME_TO_SLEEP  20        /* Time ESP32 will go to sleep (in seconds) */ // 600 for 10 minutes
+#define TIME_TO_SLEEP  60        /* Time ESP32 will go to sleep (in seconds) */ // 600 for 10 minutes
 RTC_DATA_ATTR int bootCount = 0;
 
 //Sets SPI pin definitions (Do not change if using the pins connections from the readme)
@@ -24,8 +24,8 @@ GxEPD_Class display(io, /*RST=*/ 16, /*BUSY=*/ 4); // arbitrary selection of (16
 
 //IMPORTANT: Do change these values according to your network
 //Defining the wifi network the mqtt broker is in.
-#define WIFI_SSID "XXXXXX"
-#define WIFI_PASSWORD "XXXXXX"
+#define WIFI_SSID "Pfluckley-Netz"
+#define WIFI_PASSWORD "BabyEnte162"
 
 //Defining the MQTT-Broker location (enter IP of the broker)
 #define MQTT_HOST IPAddress(192, 168, 0, 153)
@@ -185,7 +185,7 @@ void reactToPayload(char* payload) {
     printMessage(payloadMessage);
   }
   Serial.println();
-  activateDeepSleep();
+  //activateDeepSleep();
 }
 
 //Displaying the predefined bitmap when the professor is at university
@@ -290,8 +290,8 @@ void setup() {
   connectToWifi();
 
   //After 30 seconds of being 'awake' with no message, the esp will go to deep sleep.
-  delay(30000);
-  activateDeepSleep();
+  //delay(30000);
+  //activateDeepSleep();
 }
 
 void loop() {
