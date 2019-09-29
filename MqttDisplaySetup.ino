@@ -2,7 +2,7 @@
 #include <WiFi.h>
 #include <AsyncMqttClient.h>
 #include <GxEPD.h>
-#include <GxGDEW027W3/GxGDEW027W3.h>  // Library for the 2.7" b/w epaper display
+#include <GxGDEW027W3/GxGDEW027W3.h>  //Library for the 2.7" b/w epaper display CHANGE THIS if you are using a different epaper display
 #include <Fonts/FreeMonoBold9pt7b.h>  //FreeFonts from Adafruit_GFX
 #include <Fonts/FreeMonoBold12pt7b.h>
 #include <Fonts/FreeMonoBold18pt7b.h>

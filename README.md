@@ -60,7 +60,7 @@ Das Projekt ist aktuell noch in aktiver Entwicklung und wird sich relativ häufi
 3. Optional kann unter `MQTT_PORT` der Port des MQTT Brokers angepasst werden. Für diese Konfiguration allerdings nicht notwendig, es wird der Standart Port 1883 verwendet.
 
 * Zusätzlich können weitere Nachrichten hinzugefügt werden. Dazu muss die reactToPayload() Funktion um die neuen Möglichkeiten erweitert werden. 
-
+* Bei Verwendung eines anderen Epaper Displays muss lediglich die verwendete Datei aus der GxGDE Bibliothek ausgetauscht werden.
 ---
 
 ## Funktionsweise:
