@@ -6,7 +6,7 @@ Das Projekt ist aktuell noch in aktiver Entwicklung und wird sich relativ häufi
 
 ## Benötigte Hardware
 * ESP32 Development Board
-* Adafruit 2.7" b/w epaper Display
+* Adafruit 2.7" b/w epaper Display (Oder anderes Epaper Display)
 * Raspberry Pi 3+ (benötigt WLAN Modul)
 * SD-Karte (ca. 4GB)
 * Batteriehalter/Powerbank
