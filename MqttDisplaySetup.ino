@@ -24,8 +24,8 @@ GxEPD_Class display(io, /*RST=*/ 16, /*BUSY=*/ 4); // arbitrary selection of (16
 
 //IMPORTANT: Do change these values according to your network
 //Defining the wifi network the mqtt broker is in.
-#define WIFI_SSID "Pfluckley-Netz"
-#define WIFI_PASSWORD "BabyEnte162"
+#define WIFI_SSID "XXXXX"
+#define WIFI_PASSWORD "XXXXX"
 
 //Defining the MQTT-Broker location (enter IP of the broker)
 #define MQTT_HOST IPAddress(192, 168, 0, 153)
